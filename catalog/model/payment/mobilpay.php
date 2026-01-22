@@ -14,23 +14,16 @@ class Mobilpay extends \Opencart\System\Engine\Model
      *
      * @return array
      */
-    public function getMethods(array $address = []): array
+    public function getMethod(array $address): array
     {
         $this->load->language('extension/mobilpay/payment/mobilpay');
 
-		
-		/**
-		 * Check arguments
-		 * Note : Currently we do not check the amount ZERO
-		 */
         if ($this->cart->hasSubscription()) {
             $status = false;
-        } elseif (!$this->config->get('config_checkout_payment_address')) {
-            $status = true;
         } elseif (!$this->config->get('payment_mobilpay_geo_zone_id')) {
             $status = true;
         } else {
-            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$this->config->get('payment_mobilpay_geo_zone_id') . "' AND `country_id` = '" . (int)$address['country_id'] . "' AND (`zone_id` = '" . (int)$address['zone_id'] . "' OR `zone_id` = '0')");
+            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone_to_geo_zone` WHERE `geo_zone_id` = '" . (int)$this->config->get('payment_mobilpay_geo_zone_id') . "' AND `country_id` = '" . (int)($address['country_id'] ?? 0) . "' AND (`zone_id` = '" . (int)($address['zone_id'] ?? 0) . "' OR `zone_id` = '0')");
 
             if ($query->num_rows) {
                 $status = true;
@@ -42,19 +35,13 @@ class Mobilpay extends \Opencart\System\Engine\Model
         $method_data = [];
 
         if ($status) {
-            $option_data['mobilpay'] = [
-            'code' => 'mobilpay.mobilpay',
-            'name' => $this->language->get('text_option_card')
-            ];
-
             $method_data = [
-            'code'       => 'mobilpay',
-            'name'       => $this->language->get('heading_title'),
-            'option'     => $option_data,
-            'sort_order' => $this->config->get('payment_mobilpay_sort_order')
+                'code'       => 'mobilpay',
+                'title'      => $this->language->get('heading_title'),
+                'sort_order' => $this->config->get('payment_mobilpay_sort_order') ?: 0
             ];
         }
 
-            return $method_data;
+        return $method_data;
     }
 }

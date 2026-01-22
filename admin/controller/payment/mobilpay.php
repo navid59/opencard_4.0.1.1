@@ -36,7 +36,7 @@ class Mobilpay extends \Opencart\System\Engine\Controller {
 			'href'      => $this->url->link('extension/payment/mobilpay', 'user_token=' . $this->session->data['user_token'], true),
 		];
 
-		$data['save'] = $this->url->link('extension/mobilpay/payment/mobilpay.save', 'user_token=' . $this->session->data['user_token']);
+		$data['save'] = $this->url->link('extension/mobilpay/payment/mobilpay|save', 'user_token=' . $this->session->data['user_token']);
 		$data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment');
 
 		$data['payment_mobilpay_signature'] = $this->config->get('payment_mobilpay_signature');

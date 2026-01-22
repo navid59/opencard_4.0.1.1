@@ -111,12 +111,19 @@ class Pay extends \Opencart\System\Engine\Controller {
         $orderData->data->platform_version 	= $this->getOpenCartVersion();
 
         /** - Config section  */
+        // For external callbacks (IPN), we use a standalone callback.php file
+        // because NTP platforms don't accept | in URLs and require dot notation
+        // This file bypasses OpenCart routing entirely and handles the callback directly
+        $baseUrl = rtrim($this->config->get('config_url') ?: HTTP_SERVER, '/');
+        // Use direct path to callback.php - bypasses routing, works with any URL format
+        $callbackUrl = $baseUrl . '/extension/mobilpay/catalog/callback.php';
+        
         $configData = [
             'emailTemplate' => "",
-            'notifyUrl'     => $this->url->link('extension/mobilpay/payment/mobilpay.callback'),
-            'redirectUrl'   => $this->url->link('extension/mobilpay/payment/pay.redirect', 'id='.$orderData->orderID.'&language=' . $this->config->get('config_language'), true),
-            // 'cancelUrl'   => $this->url->link('extension/mobilpay/payment/pay.redirect', 'id='.$orderData->orderID.'&language=' . $this->config->get('config_language'), true),
-            'cancelUrl'   => $this->url->link('extension/mobilpay/payment/pay.cancel', 'id='.$orderData->orderID.'&language=' . $this->config->get('config_language'), true),
+            'notifyUrl'     => $callbackUrl,
+            'redirectUrl'   => $this->url->link('extension/mobilpay/payment/pay|redirect', 'id='.$orderData->orderID.'&language=' . $this->config->get('config_language'), true),
+            // 'cancelUrl'   => $this->url->link('extension/mobilpay/payment/pay|redirect', 'id='.$orderData->orderID.'&language=' . $this->config->get('config_language'), true),
+            'cancelUrl'   => $this->url->link('extension/mobilpay/payment/pay|cancel', 'id='.$orderData->orderID.'&language=' . $this->config->get('config_language'), true),
             'language'      => "RO"
             ];
 
